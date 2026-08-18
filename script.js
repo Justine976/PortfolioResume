@@ -68,18 +68,32 @@ function toTitleCase(value) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-function generateRepoDescription(repo) {
+async function fetchRepoLanguages(languagesUrl) {
+  try {
+    const response = await fetch(languagesUrl, {
+      headers: { Accept: "application/vnd.github+json" }
+    });
+    if (!response.ok) return [];
+    const languages = await response.json();
+    return Object.keys(languages);
+  } catch {
+    return [];
+  }
+}
+
+function generateRepoDescription(repo, languages) {
   if (repo.description) return repo.description;
 
   const projectName = toTitleCase(repo.name);
-  const language = repo.language || "programming";
+  const primaryLanguage = repo.language || "programming";
+  const allLanguages = languages.length > 0 ? languages.join(", ") : primaryLanguage;
   const topics = Array.isArray(repo.topics) ? repo.topics.slice(0, 3) : [];
   const topicText = topics.length ? ` Includes ${topics.join(", ")}.` : "";
 
-  return `${projectName} is a ${language} project from my GitHub portfolio.${topicText}`;
+  return `${projectName} uses ${allLanguages}. From my GitHub portfolio.${topicText}`;
 }
 
-function renderRepo(repo) {
+async function renderRepo(repo) {
   const card = document.createElement("article");
   card.className = "item project-card";
 
@@ -95,8 +109,9 @@ function renderRepo(repo) {
   link.textContent = repo.name;
   title.append(link);
 
+  const languages = await fetchRepoLanguages(repo.languages_url);
   const description = document.createElement("p");
-  description.textContent = generateRepoDescription(repo);
+  description.textContent = generateRepoDescription(repo, languages);
 
   const pills = document.createElement("div");
   pills.className = "pill-row";
@@ -126,7 +141,8 @@ async function loadGithubProjects() {
   try {
     const visibleRepos = await fetchGithubRepos(username);
 
-    projectsRoot.replaceChildren(...visibleRepos.map(renderRepo));
+    const renderedRepos = await Promise.all(visibleRepos.map(renderRepo));
+    projectsRoot.replaceChildren(...renderedRepos);
     projectStatus.textContent = `${visibleRepos.length} public repositories loaded from GitHub.`;
 
     if (visibleRepos.length === 0) {
