@@ -35,7 +35,8 @@ async function fetchGithubRepos(username) {
     });
 
     if (!response.ok) {
-      throw new Error("GitHub repositories could not be loaded.");
+      const body = await response.text().catch(() => "");
+      throw new Error(`GitHub API error ${response.status}: ${body}`);
     }
 
     const pageRepos = await response.json();
@@ -109,7 +110,9 @@ async function renderRepo(repo) {
   link.textContent = repo.name;
   title.append(link);
 
-  const languages = await fetchRepoLanguages(repo.languages_url);
+  // Avoid making an extra network request per repo for languages (causes rate limiting)
+  // Use the single `repo.language` value returned by the repo list endpoint instead.
+  const languages = repo.language ? [repo.language] : [];
   const description = document.createElement("p");
   description.textContent = generateRepoDescription(repo, languages);
 
@@ -149,7 +152,8 @@ async function loadGithubProjects() {
       projectStatus.textContent = "No public GitHub repositories found.";
     }
   } catch (error) {
-    projectStatus.textContent = "GitHub projects are unavailable right now. Visit github.com/Justine976.";
+    console.error('Error loading GitHub projects:', error);
+    projectStatus.textContent = "GitHub projects are unavailable right now.";
   }
 }
 
