@@ -291,8 +291,7 @@ function recordVisitor() {
 // Cloudflare Worker) is unavailable. Keep in sync with the pinned repos on
 // the GitHub profile (https://github.com/Justine976).
 const FALLBACK_PINNED_REPOS = [
-  "PayRoll",
-  "OnlineLibrary-ApacheTomcat-MySQL-PHPlocal",
+  "Taho-PayRoll",
   "EmployeeManagementSystem",
 ];
 
