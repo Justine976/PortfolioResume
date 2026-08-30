@@ -246,9 +246,11 @@ async function handleProjectDetailsRequest(request) {
   }
 
   // Cache per user at the edge so GitHub's API rate limit is not exhausted.
+  // The "v2" segment invalidates stale cached responses from before the
+  // README-preview image fix (old entries expire on their own within 1h).
   const cache = caches.default;
   const cacheKey = new Request(
-    `https://project-details.cache/${username}.json`,
+    `https://project-details.cache/v2/${username}.json`,
     { method: "GET" }
   );
   const cached = await cache.match(cacheKey);
