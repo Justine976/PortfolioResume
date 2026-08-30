@@ -55,6 +55,103 @@ main {
   z-index: 2;
 }
 
+.visitor-widget {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  padding-right: 10px;
+  z-index: 3;
+}
+
+.visitor-toggle {
+  height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  border: 0;
+  border-left: 1px solid var(--line);
+  background: #0a0d10;
+  color: var(--cyan);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.visitor-toggle::before {
+  content: "//";
+  color: var(--muted);
+}
+
+.visitor-toggle:hover,
+.visitor-toggle:focus-visible {
+  color: var(--green);
+  outline: none;
+}
+
+.visitor-count {
+  min-width: 3ch;
+  color: var(--green);
+  text-align: right;
+}
+
+.visitor-history {
+  position: absolute;
+  top: 38px;
+  right: 10px;
+  width: min(280px, calc(100vw - 32px));
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #0a0d10;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, .42);
+}
+
+.visitor-history-title {
+  margin-bottom: 8px;
+  color: var(--amber);
+  font-size: 13px;
+}
+
+.visitor-history-title::before {
+  content: "List<Visit> ";
+  color: var(--cyan);
+}
+
+.visitor-history-list {
+  display: grid;
+  gap: 6px;
+  max-height: 192px;
+  margin: 0;
+  padding-left: 18px;
+  overflow-y: auto;
+  color: var(--muted);
+  font-size: 12px;
+  scrollbar-color: var(--green) #0a0d10;
+  scrollbar-width: thin;
+}
+
+.visitor-history-list li::marker {
+  color: var(--green);
+}
+
+.visitor-visit-time,
+.visitor-device {
+  display: block;
+}
+
+.visitor-visit-time {
+  color: var(--ink);
+}
+
+.visitor-device {
+  color: var(--muted);
+  font-size: 11px;
+}
+
 aside {
   padding: 62px 28px 34px;
   background: #0a0d10;
@@ -285,6 +382,21 @@ a:hover { text-decoration: underline; }
   .resume::before {
     font-size: 11px;
     padding-left: 12px;
+  }
+
+  .visitor-widget {
+    padding-right: 8px;
+  }
+
+  .visitor-toggle {
+    gap: 5px;
+    padding: 0 8px;
+    font-size: 11px;
+  }
+
+  .visitor-history {
+    right: 8px;
+    width: min(260px, calc(100vw - 16px));
   }
 
   aside {
