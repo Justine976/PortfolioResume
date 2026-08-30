@@ -238,6 +238,26 @@ h3 {
   font-size: 14px;
 }
 
+.contact a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contact-icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--cyan);
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.contact a:hover .contact-icon {
+  color: var(--green);
+  transform: scale(1.15);
+  text-decoration: none;
+}
+
 .skill-tags {
   display: flex;
   flex-wrap: wrap;
@@ -501,7 +521,7 @@ a:hover {
   }
 
   .project-list {
-    max-height: 300px;
+    max-height: 550px;
     padding-right: 6px;
   }
 
@@ -509,6 +529,100 @@ a:hover {
     width: 6px;
   }
 }
+
+/* Contact Form */
+.contact-form {
+  display: grid;
+  gap: 12px;
+}
+
+.form-group {
+  display: grid;
+  gap: 4px;
+}
+
+.form-group label {
+  color: var(--cyan);
+  font-size: 12px;
+  text-transform: lowercase;
+}
+
+.form-group label::before {
+  content: "String ";
+  color: var(--muted);
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #0a0d10;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 13px;
+  transition: border-color 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--green);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.submit-btn {
+  width: fit-content;
+  padding: 8px 16px;
+  border: 1px solid var(--green);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--green);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: var(--green);
+  color: #0a0d10;
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.form-status {
+  margin: 0;
+  font-size: 12px;
+  min-height: 18px;
+}
+
+.form-status.success {
+  color: var(--green);
+}
+
+.form-status.error {
+  color: var(--red);
+}
+
+.form-status.loading {
+  color: var(--amber);
+}
+
 
 /* Tablet - Small (481px - 768px) */
 @media (min-width: 481px) and (max-width: 768px) {
@@ -582,7 +696,7 @@ a:hover {
   }
 
   .project-list {
-    max-height: 380px;
+    max-height: 600px;
   }
 }
 
@@ -630,7 +744,7 @@ a:hover {
   }
 
   .project-list {
-    max-height: 400px;
+    max-height: 1000px;
   }
 }
 
@@ -651,6 +765,6 @@ a:hover {
   }
 
   .project-list {
-    max-height: 600px;
+    max-height: 1000px;
   }
 }
