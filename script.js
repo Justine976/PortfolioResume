@@ -1,6 +1,5 @@
 document.documentElement.classList.add("js");
 
-const ageTarget = document.querySelector("[data-age]");
 const projectsRoot = document.querySelector("[data-github-projects]");
 const projectStatus = document.querySelector("[data-project-status]");
 const visitorWidget = document.querySelector("[data-visitor-widget]");
@@ -15,26 +14,6 @@ const VISITOR_SESSION_KEY = "justinePortfolioActiveVisit";
 const VISITOR_API_URL =
   "https://portfolio-visitor-counter.visitorcountapi.workers.dev";
 const MAX_VISITOR_HISTORY = 10;
-
-function calculateAge(birthdate) {
-  const today = new Date();
-  const birthday = new Date(`${birthdate}T00:00:00`);
-  let age = today.getFullYear() - birthday.getFullYear();
-  const hasBirthdayPassed =
-    today.getMonth() > birthday.getMonth() ||
-    (today.getMonth() === birthday.getMonth() &&
-      today.getDate() >= birthday.getDate());
-
-  if (!hasBirthdayPassed) age -= 1;
-  return age;
-}
-
-function renderAge() {
-  if (!ageTarget) return;
-
-  const birthdate = ageTarget.dataset.birthdate;
-  ageTarget.textContent = `${calculateAge(birthdate)}`;
-}
 
 function readVisitorStats() {
   try {
@@ -443,6 +422,114 @@ async function loadGithubProjects() {
   }
 }
 
-renderAge();
+// ============================================================
+// Contact Form (FormSubmit.co - free, no API key, no backend)
+// ============================================================
+
+// Messages are forwarded to this email address by FormSubmit.co.
+// The first submission will trigger a one-time activation email to
+// this address - click the "Activate" link inside it and you're done.
+const CONTACT_FORM_ENDPOINT =
+  "https://formsubmit.co/ajax/698bc540063c62a2c6973444d3764b30";
+
+function getContactFormElements() {
+  const form = document.querySelector("[data-contact-form]");
+  if (!form) return null;
+
+  return {
+    form,
+    name: form.querySelector("#sender-name"),
+    email: form.querySelector("#sender-email"),
+    subject: form.querySelector("#message-subject"),
+    message: form.querySelector("#message-body"),
+    submitBtn: form.querySelector(".submit-btn"),
+    btnText: form.querySelector(".btn-text"),
+    btnLoading: form.querySelector(".btn-loading"),
+    status: form.querySelector("[data-form-status]"),
+  };
+}
+
+function setFormStatus(elements, message, type) {
+  elements.status.textContent = message;
+  elements.status.className = "form-status";
+  if (type) elements.status.classList.add(type);
+}
+
+function setFormSubmitting(elements, isSubmitting) {
+  elements.submitBtn.disabled = isSubmitting;
+  elements.btnText.hidden = isSubmitting;
+  elements.btnLoading.hidden = !isSubmitting;
+}
+
+function resetForm(elements) {
+  elements.form.reset();
+}
+
+async function handleContactSubmit(event) {
+  event.preventDefault();
+
+  const elements = getContactFormElements();
+  if (!elements) return;
+
+  const name = elements.name.value.trim();
+  const email = elements.email.value.trim();
+  const subject = elements.subject.value.trim();
+  const message = elements.message.value.trim();
+
+  if (!name || !email || !subject || !message) {
+    setFormStatus(elements, "Please fill in all fields.", "error");
+    return;
+  }
+
+  setFormSubmitting(elements, true);
+  setFormStatus(elements, "Sending message...", "loading");
+
+  try {
+    const response = await fetch(CONTACT_FORM_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name,
+        email,
+        subject,
+        message,
+        _captcha: "false",
+      }),
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (response.ok && String(data.success) === "true") {
+      setFormStatus(elements, "Message sent successfully!", "success");
+      resetForm(elements);
+    } else {
+      // FormSubmit returns { success: "false", message: "..." } with a 400
+      // status for rejected submissions (e.g. missing activation).
+      const errorMsg =
+        data.message || "Failed to send message. Please try again.";
+      setFormStatus(elements, errorMsg, "error");
+    }
+  } catch (error) {
+    console.error("Error sending message:", error);
+    setFormStatus(
+      elements,
+      "Network error. Please check your connection and try again.",
+      "error"
+    );
+  } finally {
+    setFormSubmitting(elements, false);
+  }
+}
+
+function initContactForm() {
+  const elements = getContactFormElements();
+  if (!elements) return;
+
+  elements.form.addEventListener("submit", handleContactSubmit);
+}
+
+initContactForm();
+
+
 recordVisitor();
 loadGithubProjects();
