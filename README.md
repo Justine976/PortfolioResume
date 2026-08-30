@@ -65,7 +65,8 @@ https://portfolio-visitor-counter.YOUR-SUBDOMAIN.workers.dev
 Add that URL to `script.js`:
 
 ```js
-const VISITOR_API_URL = "https://portfolio-visitor-counter.YOUR-SUBDOMAIN.workers.dev";
+const VISITOR_API_URL =
+  "https://portfolio-visitor-counter.YOUR-SUBDOMAIN.workers.dev";
 ```
 
 Do not include `/visit` or `/stats` in `VISITOR_API_URL`; the script adds those paths automatically.
@@ -73,7 +74,8 @@ Do not include `/visit` or `/stats` in `VISITOR_API_URL`; the script adds those 
 Current configured API:
 
 ```js
-const VISITOR_API_URL = "https://portfolio-visitor-counter.visitorcountapi.workers.dev";
+const VISITOR_API_URL =
+  "https://portfolio-visitor-counter.visitorcountapi.workers.dev";
 ```
 
 ## Counter API

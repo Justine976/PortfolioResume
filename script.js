@@ -7,10 +7,13 @@ const visitorWidget = document.querySelector("[data-visitor-widget]");
 const visitorToggle = visitorWidget?.querySelector(".visitor-toggle");
 const visitorCount = document.querySelector("[data-visitor-count]");
 const visitorHistory = document.querySelector("[data-visitor-history]");
-const visitorHistoryList = document.querySelector("[data-visitor-history-list]");
+const visitorHistoryList = document.querySelector(
+  "[data-visitor-history-list]",
+);
 const VISITOR_STORAGE_KEY = "justinePortfolioVisitorStats";
 const VISITOR_SESSION_KEY = "justinePortfolioActiveVisit";
-const VISITOR_API_URL = "https://portfolio-visitor-counter.visitorcountapi.workers.dev";
+const VISITOR_API_URL =
+  "https://portfolio-visitor-counter.visitorcountapi.workers.dev";
 const MAX_VISITOR_HISTORY = 10;
 
 function calculateAge(birthdate) {
@@ -19,7 +22,8 @@ function calculateAge(birthdate) {
   let age = today.getFullYear() - birthday.getFullYear();
   const hasBirthdayPassed =
     today.getMonth() > birthday.getMonth() ||
-    (today.getMonth() === birthday.getMonth() && today.getDate() >= birthday.getDate());
+    (today.getMonth() === birthday.getMonth() &&
+      today.getDate() >= birthday.getDate());
 
   if (!hasBirthdayPassed) age -= 1;
   return age;
@@ -41,7 +45,7 @@ function readVisitorStats() {
 
     return {
       total: Number.isFinite(savedStats.total) ? savedStats.total : 0,
-      history: Array.isArray(savedStats.history) ? savedStats.history : []
+      history: Array.isArray(savedStats.history) ? savedStats.history : [],
     };
   } catch {
     return { total: 0, history: [] };
@@ -107,7 +111,7 @@ function formatVisitTimestamp(timestamp) {
     day: "2-digit",
     year: "numeric",
     hour: "numeric",
-    minute: "2-digit"
+    minute: "2-digit",
   }).format(new Date(timestamp));
 }
 
@@ -125,7 +129,8 @@ function getBrowserName() {
 
 function getOperatingSystem() {
   const userAgent = navigator.userAgent || "";
-  const platform = navigator.userAgentData?.platform || navigator.platform || "";
+  const platform =
+    navigator.userAgentData?.platform || navigator.platform || "";
 
   if (/Android/i.test(userAgent)) return "Android";
   if (/iPhone|iPad|iPod/i.test(userAgent)) return "iOS";
@@ -138,7 +143,8 @@ function getOperatingSystem() {
 
 function getDeviceType() {
   const userAgent = navigator.userAgent || "";
-  const isTouchMac = /Macintosh/i.test(userAgent) && navigator.maxTouchPoints > 1;
+  const isTouchMac =
+    /Macintosh/i.test(userAgent) && navigator.maxTouchPoints > 1;
   const isTablet = /iPad|Tablet/i.test(userAgent) || isTouchMac;
   const isMobile = /Mobi|Android|iPhone|iPod/i.test(userAgent);
 
@@ -154,7 +160,7 @@ function getCurrentDeviceInfo() {
     browser: getBrowserName(),
     os: getOperatingSystem(),
     screen: `${screen.width}x${screen.height}`,
-    language: navigator.language || "Unknown language"
+    language: navigator.language || "Unknown language",
   };
 }
 
@@ -195,7 +201,7 @@ function renderVisitorStats(stats) {
 
       item.append(visitTime, deviceInfo);
       return item;
-    })
+    }),
   );
 }
 
@@ -210,8 +216,8 @@ async function recordSharedVisitor() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       visitorId: getOrCreateActiveVisitId(),
-      device: getCurrentDeviceInfo()
-    })
+      device: getCurrentDeviceInfo(),
+    }),
   });
 
   if (!response.ok) {
@@ -224,7 +230,9 @@ async function recordSharedVisitor() {
 function recordLocalVisitor() {
   const stats = readVisitorStats();
   const activeVisitId = readActiveVisitId();
-  const existingVisit = stats.history.find((visit) => visit.id === activeVisitId);
+  const existingVisit = stats.history.find(
+    (visit) => visit.id === activeVisitId,
+  );
   const now = Date.now();
   let nextStats;
 
@@ -237,9 +245,9 @@ function recordLocalVisitor() {
         return {
           ...visit,
           lastSeen: now,
-          views: (Number.isFinite(visit.views) ? visit.views : 1) + 1
+          views: (Number.isFinite(visit.views) ? visit.views : 1) + 1,
         };
-      })
+      }),
     };
   } else {
     const visitId = getOrCreateActiveVisitId();
@@ -254,10 +262,10 @@ function recordLocalVisitor() {
           timestamp: now,
           lastSeen: now,
           views: 1,
-          device: getCurrentDeviceInfo()
+          device: getCurrentDeviceInfo(),
         },
-        ...stats.history
-      ].slice(0, MAX_VISITOR_HISTORY)
+        ...stats.history,
+      ].slice(0, MAX_VISITOR_HISTORY),
     };
   }
 
@@ -288,7 +296,10 @@ function recordVisitor() {
 
   if (getVisitorApiUrl("/visit")) {
     recordSharedVisitor().catch((error) => {
-      console.warn("Shared visitor counter is unavailable. Using local counter.", error);
+      console.warn(
+        "Shared visitor counter is unavailable. Using local counter.",
+        error,
+      );
       recordLocalVisitor();
     });
     return;
@@ -305,7 +316,7 @@ async function fetchGithubRepos(username) {
   while (hasNextPage) {
     const url = `https://api.github.com/users/${username}/repos?sort=updated&per_page=100&page=${page}`;
     const response = await fetch(url, {
-      headers: { Accept: "application/vnd.github+json" }
+      headers: { Accept: "application/vnd.github+json" },
     });
 
     if (!response.ok) {
@@ -326,7 +337,7 @@ function formatRepoDate(value) {
   return new Intl.DateTimeFormat("en", {
     month: "short",
     day: "2-digit",
-    year: "numeric"
+    year: "numeric",
   }).format(new Date(value));
 }
 
@@ -346,7 +357,7 @@ function toTitleCase(value) {
 async function fetchRepoLanguages(languagesUrl) {
   try {
     const response = await fetch(languagesUrl, {
-      headers: { Accept: "application/vnd.github+json" }
+      headers: { Accept: "application/vnd.github+json" },
     });
     if (!response.ok) return [];
     const languages = await response.json();
@@ -361,7 +372,8 @@ function generateRepoDescription(repo, languages) {
 
   const projectName = toTitleCase(repo.name);
   const primaryLanguage = repo.language || "programming";
-  const allLanguages = languages.length > 0 ? languages.join(", ") : primaryLanguage;
+  const allLanguages =
+    languages.length > 0 ? languages.join(", ") : primaryLanguage;
   const topics = Array.isArray(repo.topics) ? repo.topics.slice(0, 3) : [];
   const topicText = topics.length ? ` Includes ${topics.join(", ")}.` : "";
 
@@ -426,7 +438,7 @@ async function loadGithubProjects() {
       projectStatus.textContent = "No public GitHub repositories found.";
     }
   } catch (error) {
-    console.error('Error loading GitHub projects:', error);
+    console.error("Error loading GitHub projects:", error);
     projectStatus.textContent = "GitHub projects are unavailable right now.";
   }
 }
