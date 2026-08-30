@@ -141,35 +141,58 @@ function resolveCamoUrl(url) {
   return decoded || url;
 }
 
+// Resolves a README image src into an absolute URL. GitHub's API-rendered
+// README keeps relative paths as-is (unlike github.com pages), so they must
+// be resolved manually against the repo's raw content URL, using the repo's
+// actual default branch (e.g. "master" on older repos).
+function resolveReadmeImageUrl(src, repo) {
+  if (/^https?:\/\//i.test(src)) return src;
+  if (!src || /^(data:|#)/i.test(src)) return null;
+
+  const branch = repo.default_branch || "main";
+  const rawBase = `https://raw.githubusercontent.com/${repo.owner.login}/${repo.name}/${branch}/`;
+
+  if (src.startsWith("/")) {
+    return `${rawBase}${src.slice(1)}`;
+  }
+
+  try {
+    return new URL(src, rawBase).href;
+  } catch {
+    return null;
+  }
+}
+
 // Extracts the first usable image URL from a repo's rendered README HTML.
-// GitHub rewrites relative image paths to absolute URLs, so any screenshot
-// or demo GIF committed to the repo (or its /docs or /screenshots folder)
-// works as a preview for desktop/software projects with no live site.
-function extractReadmeImage(html) {
+// GitHub rewrites hosted/external image paths to absolute URLs, so any
+// screenshot or demo GIF committed to the repo (or its /docs or /screenshots
+// folder) works as a preview for desktop/software projects with no live site.
+function extractReadmeImage(html, repo) {
   if (typeof html !== "string") return null;
 
   const pattern = /<img[^>]*\ssrc="([^"]+)"/gi;
   let match;
 
   while ((match = pattern.exec(html)) !== null) {
-    if (!README_IMAGE_SKIP_PATTERN.test(resolveCamoUrl(match[1]))) {
-      return match[1];
-    }
+    if (README_IMAGE_SKIP_PATTERN.test(resolveCamoUrl(match[1]))) continue;
+
+    const absolute = resolveReadmeImageUrl(match[1], repo);
+    if (absolute) return absolute;
   }
 
   return null;
 }
 
 // Fetches a repo's README rendered as HTML and returns its first usable
-// image URL, or null when the repo has no README or no suitable image.
-async function fetchReadmePreview(baseUrl) {
+// image URL (absolute), or null when the repo has no README or no image.
+async function fetchReadmePreview(baseUrl, repo) {
   const response = await fetch(`${baseUrl}/readme`, {
     headers: { ...GITHUB_API_HEADERS, Accept: "application/vnd.github.html+json" }
   }).catch(() => null);
 
   if (!response || !response.ok) return null;
 
-  return extractReadmeImage(await response.text());
+  return extractReadmeImage(await response.text(), repo);
 }
 
 // Collects the full tech stack for every repository: complete language
@@ -193,7 +216,7 @@ async function fetchAllProjectDetails(username) {
     const [repoInfo, languages, readmePreview] = await Promise.all([
       fetchGithubJson(baseUrl).catch(() => null),
       fetchGithubJson(`${baseUrl}/languages`).catch(() => ({})),
-      needsReadmePreview ? fetchReadmePreview(baseUrl) : Promise.resolve(null)
+      needsReadmePreview ? fetchReadmePreview(baseUrl, repo) : Promise.resolve(null)
     ]);
 
     return [
