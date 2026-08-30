@@ -7,6 +7,7 @@ A responsive portfolio resume website for Justine G. Odi. The design is styled l
 - Responsive desktop, tablet, and mobile layout
 - Code editor-inspired dark theme
 - Dynamic GitHub repository cards with language, stars, forks, and live demo links
+- Pinned repositories prioritized first with an amber "pinned" badge
 - Contact form that sends messages to your Gmail
 - Contact links for GitHub, LinkedIn, and Upwork
 - Downloadable resume PDF (`Justine_G._Odi-resume.pdf`)
@@ -181,6 +182,20 @@ Change the GitHub username by editing the `data-username` value in `index.html`:
 
 ```html
 <div class="project-list" data-github-projects data-username="Justine976"></div>
+```
+
+Prioritize pinned projects in the project listing by editing the `PINNED_REPOS`
+list in `script.js`. Repositories listed here are shown first (in the given
+order) and get an amber "📌 pinned" badge; all other repositories follow in
+last-updated order. Keep this list in sync with the pinned repositories on the
+GitHub profile:
+
+```js
+const PINNED_REPOS = [
+  "EmployeeManagementSystem",
+  "OnlineLibrary-ApacheTomcat-MySQL-PHPlocal",
+  "PayRoll",
+];
 ```
 
 Change the contact form endpoint in `script.js` (see [FormSubmit's docs](https://formsubmit.co/) for generating an endpoint for your email):
