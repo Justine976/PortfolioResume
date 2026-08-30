@@ -7,7 +7,10 @@ A responsive portfolio resume website for Justine G. Odi. The design is styled l
 - Responsive desktop, tablet, and mobile layout
 - Code editor-inspired dark theme
 - Dynamic GitHub repository cards with language, stars, forks, and live demo links
-- Pinned repositories prioritized first with an amber "pinned" badge
+- Pinned repositories prioritized first with an amber "pinned" badge (read dynamically from the GitHub profile via the worker)
+- Dynamically generated project descriptions with the full tech stack, project type, and topics
+- All languages (by share of code) and topics shown as pills on every project card
+- Live website screenshot on every project card (auto-generated via WordPress mShots - free, no API key), linking to the repo
 - Contact form that sends messages to your Gmail
 - Contact links for GitHub, LinkedIn, and Upwork
 - Downloadable resume PDF (`Justine_G._Odi-resume.pdf`)
@@ -184,19 +187,77 @@ Change the GitHub username by editing the `data-username` value in `index.html`:
 <div class="project-list" data-github-projects data-username="Justine976"></div>
 ```
 
-Prioritize pinned projects in the project listing by editing the `PINNED_REPOS`
-list in `script.js`. Repositories listed here are shown first (in the given
-order) and get an amber "📌 pinned" badge; all other repositories follow in
-last-updated order. Keep this list in sync with the pinned repositories on the
-GitHub profile:
+Pinned projects are prioritized **dynamically**. The Cloudflare Worker exposes a
+`GET /pinned?username=<user>` endpoint that reads the pinned repositories from
+the GitHub profile page (in pin order) and caches them for 1 hour. `script.js`
+uses that list to sort pinned repositories first and show an amber
+"📌 pinned" badge; all other repositories follow in last-updated order.
+
+To change the order shown, change the pinned repositories and their order on
+your GitHub profile. If the worker is unreachable, `script.js` falls back to the
+static `FALLBACK_PINNED_REPOS` list:
 
 ```js
-const PINNED_REPOS = [
-  "EmployeeManagementSystem",
-  "OnlineLibrary-ApacheTomcat-MySQL-PHPlocal",
+const FALLBACK_PINNED_REPOS = [
   "PayRoll",
+  "OnlineLibrary-ApacheTomcat-MySQL-PHPlocal",
+  "EmployeeManagementSystem",
 ];
 ```
+
+> The `/pinned` and `/project-details` endpoints require the worker to be
+> redeployed after making changes: `cd cloudflare-worker && npm.cmd run deploy`.
+> Until then, the site quietly uses the fallback list and basic repo data.
+
+### Dynamic Project Descriptions & Full Tech Stacks
+
+The worker also exposes a `GET /project-details?username=<user>` endpoint that
+collects, for every repository, the complete language breakdown (with byte
+sizes), topics, description, and homepage - cached at the edge for 1 hour.
+
+`script.js` uses that data to:
+
+- Generate a rich project description dynamically: the GitHub description
+  (when present) plus the full tech stack, a project-type guess from the
+  repository name (e.g. "an employee management system", "a payroll
+  processing system"), and up to four topics.
+- Display **every** language used in each project as a pill (sorted by share
+  of code), not just the primary language.
+- Display all repository topics as green dashed pills.
+- Keep stars, forks, and live-demo links in a separate stats row.
+
+If the worker is unreachable, descriptions fall back to the primary language
+from the basic GitHub API data and the listing still renders.
+
+### Dynamic Project Screenshots
+
+Every project card shows a preview, chosen dynamically by
+`getRepoPreviewUrl()` in `script.js`:
+
+1. If the repo has a **homepage** set on GitHub, that URL is screenshotted.
+2. Otherwise, if the repo has **GitHub Pages enabled** (`has_pages` in the
+   GitHub API), `https://<owner>.github.io/<repo>/` is screenshotted.
+3. Otherwise (desktop/software applications with no live site), the **first
+   usable image from the repo's README** is used - a committed screenshot or
+   demo GIF. The worker's `/project-details` endpoint extracts it from the
+   rendered README (skipping emoji and CI badges, including ones proxied
+   through GitHub's camo proxy) and serves it as `previewImage`, cached at
+   the edge for 1 hour. **To give a software project a preview, simply
+   commit a screenshot or demo GIF to its README** - the site picks it up
+   automatically within an hour.
+4. As a last resort, the card falls back to GitHub's auto-generated Open
+   Graph preview image.
+
+Screenshots are rendered by [WordPress mShots]
+(`https://s0.wp.com/mshots/v1/<encoded-url>?w=1280&h=640`) - a public endpoint
+that is free forever, with no API key, signup, or rate limit. Notes:
+
+- mShots caches each URL's screenshot and refreshes it automatically over time,
+  so previews stay current without any maintenance.
+- The **first-ever** request for a URL may briefly show a small "generating"
+  placeholder while the screenshot is captured server-side; every later load
+  serves the finished image.
+- Images are lazy-loaded and hidden entirely if a preview URL ever fails.
 
 Change the contact form endpoint in `script.js` (see [FormSubmit's docs](https://formsubmit.co/) for generating an endpoint for your email):
 
