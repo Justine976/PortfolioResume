@@ -355,8 +355,52 @@ h3 {
   color: var(--ink);
 }
 
+/* GitHub's auto-generated Open Graph preview image for each repo. */
+.project-preview {
+  display: block;
+  margin-bottom: 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #0a0d10;
+}
+
+.project-preview img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  object-fit: cover;
+  object-position: top;
+}
+
+.project-preview:hover img {
+  opacity: 0.85;
+}
+
 .project-link {
   display: inline-block;
+}
+
+.project-card.pinned {
+  border-left: 3px solid var(--amber);
+  padding-left: 12px;
+}
+
+.pinned-badge {
+  color: var(--amber);
+}
+
+.tech-row {
+  margin-top: 10px;
+}
+
+.tech-row .pill {
+  color: var(--cyan);
+}
+
+.tech-row .pill.topic {
+  color: var(--green);
+  border-style: dashed;
 }
 
 .meta {
