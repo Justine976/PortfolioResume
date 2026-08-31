@@ -1,6 +1,6 @@
 # Portfolio Resume
 
-A responsive portfolio resume website for Justine G. Odi. The design is styled like a code editor and includes dynamic GitHub projects, a downloadable resume PDF, a contact form, and a shared visitor counter powered by Cloudflare Workers.
+A responsive portfolio resume website for Justine G. Odi. The design is styled like a code editor and includes dynamic GitHub projects, a contact form, and a shared visitor counter powered by Cloudflare Workers.
 
 ## Features
 
@@ -13,7 +13,7 @@ A responsive portfolio resume website for Justine G. Odi. The design is styled l
 - Live website screenshot on every project card (auto-generated via WordPress mShots - free, no API key), linking to the repo
 - Contact form that sends messages to your Gmail
 - Contact links for GitHub, LinkedIn, and Upwork
-- Downloadable resume PDF (`Justine_G._Odi-resume.pdf`)
+- Online resume link (hosted externally via maipdf, no local PDF needed)
 - Top-right visitor counter aligned with the resume title bar
 - Visitor history dropdown with visit time, device type, browser, OS, screen size, country code, and view count
 - Reloads in the same browser session increase the `views` count for that visit instead of the total visitor count
@@ -37,7 +37,6 @@ PortfolioResume-1/
 |-- style.css
 |-- script.js
 |-- favicon.svg
-|-- Justine_G._Odi-resume.pdf
 |-- README.md
 `-- cloudflare-worker/
     |-- package.json
@@ -199,8 +198,7 @@ static `FALLBACK_PINNED_REPOS` list:
 
 ```js
 const FALLBACK_PINNED_REPOS = [
-  "PayRoll",
-  "OnlineLibrary-ApacheTomcat-MySQL-PHPlocal",
+  "Taho-PayRoll",
   "EmployeeManagementSystem",
 ];
 ```
