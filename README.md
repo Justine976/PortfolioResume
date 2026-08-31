@@ -13,7 +13,7 @@ A responsive portfolio resume website for Justine G. Odi. The design is styled l
 - Live website screenshot on every project card (auto-generated via WordPress mShots - free, no API key), linking to the repo
 - Contact form that sends messages to your Gmail
 - Contact links for GitHub, LinkedIn, and Upwork
-- Online resume link (hosted externally via maipdf, no local PDF needed)
+- Online resume link (hosted externally via fliplink, no local PDF needed)
 - Top-right visitor counter aligned with the resume title bar
 - Visitor history dropdown with visit time, device type, browser, OS, screen size, country code, and view count
 - Reloads in the same browser session increase the `views` count for that visit instead of the total visitor count
